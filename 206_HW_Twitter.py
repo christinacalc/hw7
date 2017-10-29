@@ -2,6 +2,8 @@ import unittest
 import tweepy
 import requests
 import json
+import urllib.request, urllib.parse, urllib.error
+import twitterinfo
 
 ## SI 206 - HW
 ## COMMENT WITH:
@@ -46,16 +48,17 @@ import json
 ## Get your secret values to authenticate to Twitter. You may replace each of these 
 ## with variables rather than filling in the empty strings if you choose to do the secure way 
 ## for EC points
-consumer_key = "RvPGK7uv4kxXxqwt9udRVmQTj"
-consumer_secret = "LsgNWTcQpfXEIU3dLGlddilrXyH2qm3VzeIXX19WDrVmOGAMrZ"
-access_token = "920742820327063558-MVo1SR84dOSrQAEy0pXoZuwQONM7MvL"
-access_token_secret = "xAaWQM5HFwoUjnjyPgG7feYUsDnt6QyuhtFQR8uyr8S6r"
-## Set up your authentication to Twitter
+consumer_key = twitterinfo.consumer_key
+consumer_secret = twitterinfo.consumer_secret
+access_token = twitterinfo.access_token
+access_token_secret = twitterinfo.access_token_secret
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
+## Set up your authentication to Twitter
+
 # Set up library to grab stuff from twitter with your authentication, and 
 # return it in a JSON-formatted way
-
+serviceurl = 'https://api.twitter.com/1.1/search/tweets.json'
 api = tweepy.API(auth, parser=tweepy.parsers.JSONParser()) 
 
 ## Write the rest of your code here!
@@ -77,17 +80,19 @@ print(CACHE_DICTION)
 ## 2. Write a function to get twitter data that works with the caching pattern, 
 ## 		so it either gets new data or caches data, depending upon what the input 
 ##		to search for is. 
-def getWithCaching(search):
-    url = "https://api.twitter.com/1.1/search/tweets.json"
+# print(api.search(q= "michigan", count= 5)
+
+def GetWithCaching(search):
 
     if search in CACHE_DICTION:
         print("Data was in the cache")
         return CACHE_DICTION[search]
     else:
         print("Making a request for new data...")
-        uh = requests.get(url)
+        x= api.search(q= search, count = 5)
+
         try:
-            CACHE_DICTION[search] =  json.loads(uh)
+            CACHE_DICTION[search] =  x
             dumped_json_cache = json.dumps(CACHE_DICTION)
             fw = open(CACHE_FNAME,"w")
             fw.write(dumped_json_cache)
@@ -98,11 +103,13 @@ def getWithCaching(search):
             return None
 
 
+
 ## 3. Using a loop, invoke your function, save the return value in a variable, and explore the 
 ##		data you got back!
+while True: 
+    search= input("Enter a search term: ")
+    function= GetWithCaching(search)
 
-search= input("Enter a search term:")
-function= getWithCaching(search)
 
 
 
