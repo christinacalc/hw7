@@ -66,7 +66,7 @@ api = tweepy.API(auth, parser=tweepy.parsers.JSONParser())
 #### Recommended order of tasks: ####
 ## 1. Set up the caching pattern start -- the dictionary and the try/except 
 ## 		statement shown in class.
-cache_file= 'twitter_cache.json'
+CACHE_FNAME= 'twitter_cache.json'
 try:
     cache_file = open(CACHE_FNAME, 'r') # Try to read the data from the file
     cache_contents = cache_file.read()  # If it's there, get it into a string
@@ -75,7 +75,7 @@ try:
 except:
     CACHE_DICTION = {}
 
-print(CACHE_DICTION)
+
 
 ## 2. Write a function to get twitter data that works with the caching pattern, 
 ## 		so it either gets new data or caches data, depending upon what the input 
@@ -83,21 +83,21 @@ print(CACHE_DICTION)
 # print(api.search(q= "michigan", count= 5)
 
 def GetWithCaching(search):
-
-    if search in CACHE_DICTION:
-        print("Data was in the cache")
-        return CACHE_DICTION[search]
+    key= 'twitter_{}'.format(search)
+    if key in CACHE_DICTION:
+        print("Data was in the cache"+"\n")
+        return CACHE_DICTION[key]
     else:
-        print("Making a request for new data...")
-        x= api.search(q= search, count = 5)
+        print("Making a request for new data..."+"\n")
+        x= api.search(q= search)
 
         try:
-            CACHE_DICTION[search] =  x
+            CACHE_DICTION[key] =  x
             dumped_json_cache = json.dumps(CACHE_DICTION)
             fw = open(CACHE_FNAME,"w")
             fw.write(dumped_json_cache)
             fw.close() # Close the open file
-            return CACHE_DICTION[search]
+            return x
         except:
             print("Wasn't in cache and wasn't valid search either")
             return None
@@ -106,9 +106,13 @@ def GetWithCaching(search):
 
 ## 3. Using a loop, invoke your function, save the return value in a variable, and explore the 
 ##		data you got back!
-while True: 
+i = 0 
+while i < 3: 
     search= input("Enter a search term: ")
-    function= GetWithCaching(search)
+    twitter_data= GetWithCaching(search)
+    posts= twitter_data['statuses']
+    i +=1 
+
 
 
 
@@ -117,10 +121,13 @@ while True:
 ##		text of each tweet in the big nested structure -- write code to print out 
 ## 		content from 5 tweets, as shown in the linked example.
 
-
-
-
-
+    for tweet in posts[:5]:
+        text= "Text: " + tweet['text']
+        time= "Created at: " + tweet['created_at']
+        print("___________________________________________________"+"\n")
+        print(text)
+        print(time+"\n")
+            
 
 
 
